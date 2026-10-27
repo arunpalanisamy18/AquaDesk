@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Water Supply Grid Monitoring - AquaFlow Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200">
+                    Municipal Telemetry & Grid
+                </span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">Water Supply Grid Monitoring & Outage Control</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Control reservoir distribution zones, pipeline pressure, daily supply slots, and citizen advisories</p>
+        </div>
+        <a href="#broadcast-form" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition">
+            <i class="fa-solid fa-bullhorn"></i> Broadcast Advisory Notice
+        </a>
+    </div>
+
+    <!-- Zone Status and Edit Cards -->
+    <div class="space-y-4">
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-tower-observation text-aqua-600"></i>
+            Active Distribution Zones Telemetry & Scheduling
+        </h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {% for z in zones %}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4 hover:border-aqua-300 transition">
+                    
+                    <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{{ z.ward_area }}</span>
+                            <h3 class="font-bold text-base text-slate-900">{{ z.zone_name }}</h3>
+                            <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-water text-aqua-500 mr-1"></i> {{ z.reservoir_name }}</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold {% if z.supply_status == 'ACTIVE' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif z.supply_status == 'SCHEDULED' %}bg-sky-100 text-sky-800 border border-sky-200{% else %}bg-rose-100 text-rose-800 border border-rose-200{% endif %}">
+                            {{ z.supply_status }}
+                        </span>
+                    </div>
+
+                    <!-- Telemetry Adjustment Form -->
+                    <form method="POST" action="{{ url_for('admin_supply') }}" class="space-y-4 text-xs">
+                        <input type="hidden" name="action" value="update_zone">
+                        <input type="hidden" name="zone_id" value="{{ z.zone_id }}">
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Status</label>
+                                <select name="status" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-medium">
+                                    <option value="ACTIVE" {% if z.supply_status == 'ACTIVE' %}selected{% endif %}>ACTIVE (Flowing)</option>
+                                    <option value="SCHEDULED" {% if z.supply_status == 'SCHEDULED' %}selected{% endif %}>SCHEDULED</option>
+                                    <option value="MAINTENANCE" {% if z.supply_status == 'MAINTENANCE' %}selected{% endif %}>MAINTENANCE</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Reservoir (%)</label>
+                                <input type="number" step="0.5" name="reservoir_level" value="{{ z.reservoir_level_pct }}" min="0" max="100" required
+                                       class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-mono font-semibold">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Pressure (PSI)</label>
+                                <input type="number" step="0.1" name="water_pressure" value="{{ z.water_pressure_psi }}" required
+                                       class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-mono font-semibold">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Water pH</label>
+                                <input type="number" step="0.1" name="purity_ph" value="{{ z.purity_ph }}" required
+                                       class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-mono font-semibold">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Morning Supply Slot</label>
+                                <input type="text" name="morning_slot" value="{{ z.morning_slot }}" required
+                                       class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-medium">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Evening Supply Slot</label>
+                                <input type="text" name="evening_slot" value="{{ z.evening_slot }}" required
+                                       class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 focus:border-aqua-500 font-medium">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-[11px] text-slate-400">
+                                <i class="fa-solid fa-users text-slate-400 mr-1"></i> Connected Meters: {{ z.total_consumers }}
+                            </span>
+                            <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-aqua-700 text-white text-xs font-semibold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-check"></i> Save Telemetry
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Broadcast Alert / Notice Form -->
+    <div id="broadcast-form" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <div class="mb-4">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-bullhorn text-amber-500"></i>
+                Publish Outage Notice or Quality Advisory
+            </h3>
+            <p class="text-xs text-slate-500">Advisories appear instantly on the dashboards of consumers living in the targeted zone</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_supply') }}" class="space-y-4 text-xs">
+            <input type="hidden" name="action" value="add_alert">
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-700 uppercase mb-1">Target Distribution Zone</label>
+                    <select name="zone_id" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium">
+                        <option value="">All Zones (Entire Municipality)</option>
+                        {% for z in zones %}
+                            <option value="{{ z.zone_id }}">{{ z.zone_name }} ({{ z.ward_area }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 uppercase mb-1">Advisory Severity</label>
+                    <select name="severity" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium">
+                        <option value="Info">Information / Routine Maintenance</option>
+                        <option value="Warning" selected>Warning / Pressure Drop / Schedule Shift</option>
+                        <option value="Emergency">Emergency / Total Supply Interruption</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 uppercase mb-1">Notice Title / Headline</label>
+                    <input type="text" name="title" required placeholder="e.g. Valve Replacement at North Feeder"
+                           class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 uppercase mb-1">Detailed Advisory Message</label>
+                <textarea name="message" rows="2" required placeholder="Describe the reason, affected ward, expected duration, and citizen instructions (e.g. store drinking water in advance)."
+                          class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Publish Advisory to Consumer Dashboards
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Alerts Management Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h3 class="text-sm font-bold text-slate-900 mb-4">Published Advisories & Outage Notices ({{ alerts|length }})</h3>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+                        <th class="py-2.5 px-3">Severity</th>
+                        <th class="py-2.5 px-3">Headline</th>
+                        <th class="py-2.5 px-3">Target Zone</th>
+                        <th class="py-2.5 px-3">Details</th>
+                        <th class="py-2.5 px-3">Date</th>
+                        <th class="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for a in alerts %}
+                        <tr>
+                            <td class="py-3 px-3">
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {% if a.severity == 'Emergency' %}bg-rose-100 text-rose-800{% elif a.severity == 'Warning' %}bg-amber-100 text-amber-800{% else %}bg-sky-100 text-sky-800{% endif %}">
+                                    {{ a.severity }}
+                                </span>
+                            </td>
+                            <td class="py-3 px-3 font-semibold text-slate-900">{{ a.title }}</td>
+                            <td class="py-3 px-3 text-slate-600">{{ a.zone_name or 'All Zones' }}</td>
+                            <td class="py-3 px-3 text-slate-500 max-w-xs truncate">{{ a.message }}</td>
+                            <td class="py-3 px-3 text-slate-400 text-[11px]">{{ a.posted_at }}</td>
+                            <td class="py-3 px-3 text-right">
+                                <a href="{{ url_for('admin_toggle_alert', alert_id=a.alert_id, status=0) }}" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                    Archive
+                                </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-6 text-slate-400">No active notices.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

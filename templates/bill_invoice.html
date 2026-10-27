@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Utility Invoice - {{ bill.bill_number }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .print-border { border: 1px solid #e2e8f0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 py-10 px-4 text-slate-800">
+
+    <div class="max-w-3xl mx-auto">
+        
+        <!-- Action Buttons (Print / Back) -->
+        <div class="flex items-center justify-between mb-4 no-print">
+            <button onclick="window.history.back()" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm border border-slate-200 transition">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-md transition">
+                <i class="fa-solid fa-print"></i> Print / Save as PDF
+            </button>
+        </div>
+
+        <!-- Official Utility Tax Invoice Card -->
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 relative overflow-hidden print-border">
+            
+            <!-- Watermark for Status -->
+            {% if bill.status == 'PAID' %}
+                <div class="absolute right-8 top-32 border-4 border-emerald-500/30 text-emerald-600/30 font-black text-6xl tracking-widest uppercase py-2 px-8 rounded-2xl rotate-12 pointer-events-none select-none">
+                    PAID
+                </div>
+            {% else %}
+                <div class="absolute right-8 top-32 border-4 border-amber-500/30 text-amber-600/30 font-black text-6xl tracking-widest uppercase py-2 px-8 rounded-2xl rotate-12 pointer-events-none select-none">
+                    UNPAID
+                </div>
+            {% endif %}
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between border-b-2 border-slate-800 pb-6 mb-6 gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-2xl shadow-md">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">Municipal Water Supply Authority</h1>
+                        <p class="text-xs text-slate-500">Government Water Distribution & Utility Revenue Department</p>
+                        <p class="text-[11px] text-slate-400">Urban Water Grid • Safe Potable Water Supply</p>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right">
+                    <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Utility Bill & Tax Invoice</div>
+                    <div class="text-lg font-black font-mono text-sky-700">{{ bill.bill_number }}</div>
+                    <div class="text-xs text-slate-500">Issue Date: <span class="font-semibold">{{ bill.billing_date }}</span></div>
+                    <div class="text-xs text-rose-600 font-bold">Due Date: {{ bill.due_date }}</div>
+                </div>
+            </div>
+
+            <!-- Consumer & Connection Details Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200 text-xs mb-6">
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Consumer Details</span>
+                    <div class="font-extrabold text-sm text-slate-900">{{ bill.consumer_name }}</div>
+                    <div class="text-slate-600 mt-1 leading-relaxed">{{ bill.address }}</div>
+                    <div class="text-slate-500 mt-1"><i class="fa-solid fa-phone text-[10px] mr-1"></i> {{ bill.phone or 'N/A' }} • {{ bill.email }}</div>
+                </div>
+                <div class="space-y-1 sm:text-right">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Connection Information</span>
+                    <div><span class="text-slate-500">Account No:</span> <span class="font-mono font-bold text-slate-900">{{ bill.account_number }}</span></div>
+                    <div><span class="text-slate-500">Meter Serial No:</span> <span class="font-mono font-bold text-slate-900">{{ bill.meter_number }}</span></div>
+                    <div><span class="text-slate-500">Tariff Class:</span> <span class="font-bold text-sky-700">{{ bill.connection_type }}</span></div>
+                    <div><span class="text-slate-500">Supply Zone:</span> <span class="font-medium text-slate-800">{{ bill.zone_name }} ({{ bill.ward_area }})</span></div>
+                </div>
+            </div>
+
+            <!-- Meter Reading Computation Section -->
+            <div class="mb-6">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Meter Reading & Volumetric Consumption</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
+                        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] tracking-wider">
+                            <tr>
+                                <th class="p-3">Billing Cycle</th>
+                                <th class="p-3">Previous Reading (kL)</th>
+                                <th class="p-3">Current Reading (kL)</th>
+                                <th class="p-3">Units Consumed (kL)</th>
+                                <th class="p-3 text-right">Liters Equivalent</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-mono">
+                            <tr>
+                                <td class="p-3 font-sans font-bold text-slate-800">{{ bill.billing_month }}</td>
+                                <td class="p-3 text-slate-600">{{ bill.prev_reading }}</td>
+                                <td class="p-3 font-semibold text-slate-800">{{ bill.curr_reading }}</td>
+                                <td class="p-3 font-bold text-sky-700 text-sm">{{ bill.units_consumed }} kL</td>
+                                <td class="p-3 text-right text-slate-600">{{ "{:,.0f}".format(bill.units_consumed * 1000) }} Liters</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charges Breakdown Table -->
+            <div class="mb-6">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Charges Itemization (Slab Tariff)</h3>
+                <div class="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                    <div class="flex justify-between p-3 bg-white border-b border-slate-100">
+                        <span class="text-slate-700 font-medium">Fixed Infrastructure & Meter Standing Charge</span>
+                        <span class="font-mono font-semibold text-slate-900">₹{{ "{:,.2f}".format(bill.base_charge) }}</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-slate-50/50 border-b border-slate-100">
+                        <div>
+                            <span class="text-slate-700 font-medium">Volumetric Water Consumption Charge</span>
+                            <span class="text-[10px] text-slate-400 block">{{ bill.units_consumed }} kL applied to {{ bill.connection_type }} progressive slabs</span>
+                        </div>
+                        <span class="font-mono font-semibold text-slate-900">₹{{ "{:,.2f}".format(bill.consumption_charge) }}</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white border-b border-slate-100">
+                        <span class="text-slate-700 font-medium">Environmental & Sewerage Maintenance Levy</span>
+                        <span class="font-mono font-semibold text-slate-900">₹{{ "{:,.2f}".format(bill.tax_surcharge) }}</span>
+                    </div>
+                    <div class="flex justify-between p-4 bg-slate-900 text-white font-bold text-sm">
+                        <span>Net Payable Amount:</span>
+                        <span class="font-mono text-base text-sky-300">₹{{ "{:,.2f}".format(bill.total_amount) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Confirmation Box (If Paid) -->
+            {% if bill.receipt_number %}
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
+                        <div>
+                            <span class="font-bold">Payment Settled Online</span>
+                            <div class="text-[11px] text-emerald-700">Method: {{ bill.payment_method }} • Date: {{ bill.payment_date }}</div>
+                        </div>
+                    </div>
+                    <div class="sm:text-right font-mono">
+                        <div class="text-[10px] uppercase text-emerald-600 font-bold">Receipt Reference</div>
+                        <div class="font-bold text-slate-900">{{ bill.receipt_number }}</div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Footer & Terms -->
+            <div class="border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+                <span>Computer-generated utility invoice. No physical signature required.</span>
+                <span>DBMS Project • AquaFlow System</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Report Issue - AquaFlow Consumer Grievance{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
+                    Consumer Grievance Desk
+                </span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">Report Water Supply or Meter Issue</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Lodge complaints regarding pressure drop, dirty water, leakages, or billing errors</p>
+        </div>
+        <a href="{{ url_for('consumer_dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold border border-slate-200 transition">
+            <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </a>
+    </div>
+
+    <!-- Grievance Submission Form -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+        <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-rose-500"></i> File a New Service Request
+        </h2>
+
+        <form method="POST" action="{{ url_for('consumer_complaints') }}" class="space-y-4 text-xs">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Complaint Category</label>
+                    <select name="category" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-aqua-500 text-xs font-medium">
+                        <option value="Low Pressure">Low Water Supply Pressure</option>
+                        <option value="No Water">Complete Supply Outage / No Water</option>
+                        <option value="Contaminated / Murky Water">Contaminated / Murky Water</option>
+                        <option value="Pipeline Leakage">Street / Pipeline Leakage</option>
+                        <option value="Meter Fault">Water Meter Defect / Glass Blur</option>
+                        <option value="Billing Discrepancy">Billing Calculation Issue</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Assigned Zone</label>
+                    <input type="text" disabled value="{{ consumer.zone_name }} ({{ consumer.ward_area }})"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold text-xs">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-bold text-slate-700 uppercase mb-1">Describe Your Issue in Detail</label>
+                <textarea name="description" rows="3" required placeholder="Specify your exact address, floor, timing of issue, and any physical pipeline leak observations..."
+                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-aqua-500 text-xs"></textarea>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Grievance Ticket
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Grievances History -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 sm:p-8 space-y-4">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> My Registered Grievances ({{ complaints|length }})
+        </h3>
+
+        <div class="space-y-3">
+            {% for c in complaints %}
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="font-bold text-slate-900 text-sm">
+                            <span class="text-slate-400 mr-1">#{{ c.complaint_id }}</span> {{ c.category }}
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% elif c.status == 'In Progress' %}bg-sky-100 text-sky-800 border border-sky-200{% else %}bg-amber-100 text-amber-800 border border-amber-200{% endif %}">
+                            {{ c.status }}
+                        </span>
+                    </div>
+                    <p class="text-slate-600">{{ c.description }}</p>
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200">
+                        <span>Submitted on {{ c.created_at }}</span>
+                        {% if c.admin_response %}
+                            <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-comment-dots"></i> Municipal Note: {{ c.admin_response }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-xs text-slate-400 text-center py-6">You have not submitted any complaints.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

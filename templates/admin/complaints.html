@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Consumer Grievances - AquaFlow Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                    Citizen Service Desk
+                </span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">Consumer Grievances & Service Tickets</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Track reported pipe leakages, pressure drops, meter faults, and water quality issues</p>
+        </div>
+    </div>
+
+    <!-- Grievances Table & Resolution -->
+    <div class="space-y-4">
+        {% for c in complaints %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold">
+                            #{{ c.complaint_id }}
+                        </span>
+                        <div>
+                            <h3 class="font-bold text-sm text-slate-900">{{ c.category }}</h3>
+                            <span class="text-xs text-slate-500">Filed by <span class="font-semibold text-slate-800">{{ c.consumer_name }}</span> ({{ c.account_number }}) • {{ c.zone_name }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400">{{ c.created_at }}</span>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-800{% elif c.status == 'In Progress' %}bg-sky-100 text-sky-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                            {{ c.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-800 block mb-1">Description:</span>
+                    {{ c.description }}
+                </div>
+
+                <!-- Admin Action / Response form -->
+                <form method="POST" action="{{ url_for('admin_complaints') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end pt-2 text-xs">
+                    <input type="hidden" name="complaint_id" value="{{ c.complaint_id }}">
+                    <div class="sm:col-span-3">
+                        <label class="block font-semibold text-slate-600 mb-1">Update Status</label>
+                        <select name="status" class="w-full px-2.5 py-2 rounded-xl border border-slate-200 text-xs font-semibold">
+                            <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending Inspection</option>
+                            <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress / Dispatched</option>
+                            <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-7">
+                        <label class="block font-semibold text-slate-600 mb-1">Action Note / Feedback to Consumer</label>
+                        <input type="text" name="admin_response" value="{{ c.admin_response or '' }}" placeholder="e.g. Field plumber dispatched to replace the pipeline valve"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <button type="submit" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-aqua-700 text-white font-semibold text-xs transition">
+                            Save Update
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center text-slate-400 text-xs">
+                <i class="fa-solid fa-circle-check text-4xl text-emerald-400 mb-2"></i>
+                <p class="font-semibold text-sm text-slate-700">No active consumer complaints!</p>
+                <p>All reported issues have been inspected and resolved.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

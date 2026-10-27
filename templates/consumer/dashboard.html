@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}Consumer Dashboard - AquaFlow Water Utility{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <!-- Top Consumer Profile Banner -->
+    <div class="bg-gradient-to-r from-slate-900 via-aqua-950 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl relative overflow-hidden">
+        <!-- Ambient Water Glow -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-aqua-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold bg-aqua-500/20 text-aqua-300 border border-aqua-400/30">
+                        <i class="fa-solid fa-house-chimney-user mr-1"></i> Consumer Portal
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
+                        {{ consumer.connection_type }}
+                    </span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Welcome, {{ consumer.full_name }}</h1>
+                <p class="text-xs sm:text-sm text-slate-300 mt-1 flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-aqua-400"></i> {{ consumer.address }}
+                </p>
+            </div>
+
+            <!-- Consumer Metadata Badges -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/80 text-xs">
+                <div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Account No</div>
+                    <div class="font-mono font-bold text-aqua-300 text-sm">{{ consumer.account_number }}</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Meter Serial</div>
+                    <div class="font-mono font-bold text-white text-sm">{{ consumer.meter_number }}</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Supply Zone</div>
+                    <div class="font-bold text-slate-200 truncate">{{ consumer.zone_name }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Grid Alerts for Consumer's Zone (If Any) -->
+    {% if alerts %}
+        <div class="space-y-3">
+            {% for a in alerts %}
+                <div class="p-4 rounded-2xl border {% if a.severity == 'Emergency' %}bg-rose-50 border-rose-300 text-rose-900{% elif a.severity == 'Warning' %}bg-amber-50 border-amber-300 text-amber-900{% else %}bg-sky-50 border-sky-300 text-sky-900{% endif %} flex items-start gap-3 shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 {% if a.severity == 'Emergency' %}text-rose-600{% elif a.severity == 'Warning' %}text-amber-600{% else %}text-sky-600{% endif %}"></i>
+                    <div class="flex-grow">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm">{{ a.title }}</span>
+                            <span class="text-[11px] opacity-75">{{ a.posted_at }}</span>
+                        </div>
+                        <p class="text-xs mt-1 leading-relaxed">{{ a.message }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- CRITICAL SECTION: Prominent Pending Bill Alert Added by Admin -->
+    {% if metrics.latest_unpaid %}
+        <div class="bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-bell animate-bounce"></i> New Utility Bill Added by Admin
+                    </div>
+                    <h2 class="text-2xl font-black">Water Bill for {{ metrics.latest_unpaid.billing_month }}</h2>
+                    <p class="text-xs text-amber-100 mt-1">
+                        Bill #<span class="font-mono font-bold">{{ metrics.latest_unpaid.bill_number }}</span> • Consumed: <span class="font-bold">{{ metrics.latest_unpaid.units_consumed }} kL</span> • Due by: <span class="font-bold underline">{{ metrics.latest_unpaid.due_date }}</span>
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white/10 p-4 rounded-2xl border border-white/20 backdrop-blur-sm">
+                    <div>
+                        <div class="text-[11px] text-amber-100 uppercase tracking-wider">Total Payable</div>
+                        <div class="text-3xl font-extrabold font-mono">₹{{ "{:,.2f}".format(metrics.latest_unpaid.total_amount) }}</div>
+                    </div>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button onclick="openPaymentModal({{ metrics.latest_unpaid.bill_id }}, '{{ metrics.latest_unpaid.bill_number }}', {{ metrics.latest_unpaid.total_amount }}, '{{ metrics.latest_unpaid.billing_month }}')"
+                                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-amber-50 text-amber-800 font-extrabold text-sm shadow-md transition">
+                            <i class="fa-solid fa-credit-card"></i> Pay Now
+                        </button>
+                        <a href="{{ url_for('view_bill_invoice', bill_id=metrics.latest_unpaid.bill_id) }}" target="_blank"
+                           class="inline-flex items-center justify-center px-4 py-3 rounded-xl bg-black/20 hover:bg-black/30 text-white font-semibold text-xs border border-white/20 transition" title="Print Bill">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 flex items-center justify-between text-emerald-900 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </span>
+                <div>
+                    <h3 class="font-bold text-sm">All Water Utility Dues Cleared</h3>
+                    <p class="text-xs text-emerald-700">Thank you! You have no pending bills. Your next meter reading will be posted by the administrator.</p>
+                </div>
+            </div>
+            <a href="{{ url_for('consumer_bills') }}" class="text-xs font-semibold text-emerald-700 hover:text-emerald-900 underline">
+                View Past Receipts &rarr;
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Water Supply Live Monitoring Card (Consumer's Ward) -->
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-4 mb-6">
+            <div>
+                <span class="text-xs font-bold text-aqua-600 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-satellite-dish"></i> Live Water Supply Telemetry
+                </span>
+                <h2 class="text-xl font-bold text-slate-900 mt-0.5">Distribution Grid Status for Your Area: {{ consumer.zone_name }}</h2>
+                <p class="text-xs text-slate-500">{{ consumer.ward_area }} • Reservoir: {{ consumer.reservoir_name }}</p>
+            </div>
+            <div>
+                {% if consumer.supply_status == 'ACTIVE' %}
+                    <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> WATER SUPPLY FLOWING NOW
+                    </span>
+                {% elif consumer.supply_status == 'SCHEDULED' %}
+                    <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200 inline-flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock"></i> ON SCHEDULE
+                    </span>
+                {% else %}
+                    <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1.5">
+                        <i class="fa-solid fa-wrench"></i> MAINTENANCE SHUTOFF
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            <!-- Daily Supply Slots -->
+            <div class="md:col-span-2 bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-regular fa-calendar-check text-aqua-600"></i> Daily Scheduled Supply Slots
+                </span>
+                
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 text-amber-500 font-bold text-xs mb-1">
+                            <i class="fa-regular fa-sun"></i> Morning Supply
+                        </div>
+                        <div class="font-extrabold text-sm text-slate-900">{{ consumer.morning_slot }}</div>
+                        <span class="text-[10px] text-slate-400">Regular domestic supply</span>
+                    </div>
+
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 text-indigo-500 font-bold text-xs mb-1">
+                            <i class="fa-regular fa-moon"></i> Evening Supply
+                        </div>
+                        <div class="font-extrabold text-sm text-slate-900">{{ consumer.evening_slot }}</div>
+                        <span class="text-[10px] text-slate-400">Peak domestic window</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Pressure & Reservoir Level -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 flex flex-col justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge text-sky-600"></i> Pipeline Pressure
+                </span>
+                <div class="my-2">
+                    <div class="text-3xl font-black text-slate-900 font-mono">{{ consumer.water_pressure_psi }} <span class="text-xs font-normal text-slate-500">PSI</span></div>
+                    <span class="text-[11px] text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> Optimal Grid Flow</span>
+                </div>
+                <div class="text-[11px] text-slate-400">
+                    Reservoir Storage: <span class="font-bold text-slate-700">{{ consumer.reservoir_level_pct }}%</span>
+                </div>
+            </div>
+
+            <!-- Water Purity Metrics -->
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 flex flex-col justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <i class="fa-solid fa-flask-vial text-emerald-600"></i> Water Purity Index
+                </span>
+                <div class="my-2 space-y-1">
+                    <div class="text-2xl font-black text-slate-900 font-mono">{{ consumer.purity_ph }} <span class="text-xs font-normal text-slate-500">pH</span></div>
+                    <div class="text-xs font-semibold text-slate-700">TDS: <span class="font-mono">{{ consumer.tds_ppm }} ppm</span></div>
+                </div>
+                <div class="text-[11px] text-emerald-600 font-semibold">
+                    <i class="fa-solid fa-shield-halved"></i> Certified Safe Potable
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Consumption History Chart & Billing History -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Monthly Consumption Trend Chart (2 Cols) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-aqua-600"></i>
+                        Monthly Water Consumption Trend (kL)
+                    </h3>
+                    <p class="text-xs text-slate-500">Usage trend across recent utility billing cycles</p>
+                </div>
+                <span class="text-xs font-semibold text-slate-400">Kiloliters (kL)</span>
+            </div>
+
+            <div class="h-64 w-full">
+                <canvas id="consumptionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Right: Recent Billing Statements (1 Col) -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-emerald-600"></i>
+                        Recent Bills
+                    </h3>
+                    <a href="{{ url_for('consumer_bills') }}" class="text-xs font-semibold text-aqua-600 hover:text-aqua-700">All Bills &rarr;</a>
+                </div>
+
+                <div class="space-y-3">
+                    {% for b in bills[:4] %}
+                        <div class="p-3.5 rounded-2xl border border-slate-100 hover:border-aqua-200 bg-slate-50/50 transition flex items-center justify-between text-xs">
+                            <div>
+                                <div class="font-bold text-slate-900">{{ b.billing_month }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ b.bill_number }} • {{ b.units_consumed }} kL</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-extrabold text-slate-900 font-mono">₹{{ "{:,.2f}".format(b.total_amount) }}</div>
+                                {% if b.status == 'PAID' %}
+                                    <span class="text-[10px] font-bold text-emerald-600"><i class="fa-solid fa-check"></i> PAID</span>
+                                {% else %}
+                                    <span class="text-[10px] font-bold text-amber-600"><i class="fa-regular fa-clock"></i> UNPAID</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400 text-center py-6">No bills recorded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 mt-4">
+                <a href="{{ url_for('consumer_bills') }}" class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-aqua-600 hover:bg-aqua-700 text-white font-semibold text-xs shadow-sm transition">
+                    <i class="fa-solid fa-receipt"></i> View Detailed Invoices & Pay
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Payment Simulation Modal -->
+<div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-credit-card"></i>
+                </span>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base">Municipal Water Utility Payment</h3>
+                    <p class="text-[11px] text-slate-400">Secure Instant Payment Gateway</p>
+                </div>
+            </div>
+            <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form id="pay-form" method="POST" action="" class="space-y-4 text-xs">
+            
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center space-y-1">
+                <span class="text-slate-400 uppercase text-[10px] font-bold tracking-wider" id="modal-bill-month">October 2026</span>
+                <div class="text-3xl font-black text-slate-900 font-mono" id="modal-amount">₹0.00</div>
+                <div class="text-[11px] text-slate-500 font-mono" id="modal-bill-no">BILL-XXXX</div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">Choose Payment Channel</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
+                        <input type="radio" name="payment_method" value="UPI" checked class="text-aqua-600">
+                        <span class="font-semibold text-slate-800">UPI / QR Code</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
+                        <input type="radio" name="payment_method" value="Credit/Debit Card" class="text-aqua-600">
+                        <span class="font-semibold text-slate-800">Debit / Card</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
+                        <input type="radio" name="payment_method" value="Net Banking" class="text-aqua-600">
+                        <span class="font-semibold text-slate-800">Net Banking</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
+                        <input type="radio" name="payment_method" value="Counter" class="text-aqua-600">
+                        <span class="font-semibold text-slate-800">Bank Transfer</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-[11px] flex items-center gap-2">
+                <i class="fa-solid fa-lock text-emerald-600"></i>
+                <span>Database trigger will immediately execute and mark the bill as PAID!</span>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closePaymentModal()" class="flex-1 py-3 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check-circle"></i> Confirm & Pay
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openPaymentModal(billId, billNumber, amount, month) {
+        document.getElementById("pay-form").action = `/consumer/pay/${billId}`;
+        document.getElementById("modal-bill-no").textContent = billNumber;
+        document.getElementById("modal-bill-month").textContent = month;
+        document.getElementById("modal-amount").textContent = `₹${parseFloat(amount).toFixed(2)}`;
+        document.getElementById("payment-modal").classList.remove("hidden");
+    }
+
+    function closePaymentModal() {
+        document.getElementById("payment-modal").classList.add("hidden");
+    }
+
+    // Chart.js Usage History Initialization
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById("consumptionChart");
+        if (!ctx) return;
+
+        // Extract historical data passed from Flask
+        const rawHistory = {{ metrics.usage_history|tojson }};
+        const labels = rawHistory.map(item => item.billing_month);
+        const units = rawHistory.map(item => item.units_consumed);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.length ? labels : ['August', 'September', 'October'],
+                datasets: [{
+                    label: 'Water Consumption (kL)',
+                    data: units.length ? units : [18, 22, 24.5],
+                    backgroundColor: 'rgba(14, 165, 233, 0.7)',
+                    borderColor: 'rgb(2, 132, 199)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Units (Kiloliters)' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
