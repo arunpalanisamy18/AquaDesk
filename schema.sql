@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS bills (
 -- 5. PAYMENTS TABLE (Transaction Auditing & Receipts)
 CREATE TABLE IF NOT EXISTS payments (
     payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    bill_id INTEGER NOT NULL,
+    bill_id INTEGER NOT NULL UNIQUE,
     consumer_id INTEGER NOT NULL,
     receipt_number VARCHAR(40) UNIQUE NOT NULL,
     transaction_ref VARCHAR(60) UNIQUE NOT NULL,
@@ -82,6 +82,9 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
     FOREIGN KEY (consumer_id) REFERENCES consumers(consumer_id) ON DELETE CASCADE
 );
+
+-- Unique index enforcement: each bill can have at most one payment
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payments_bill_id_unique ON payments(bill_id);
 
 -- 6. SUPPLY ALERTS TABLE (Outage Notices & Grid Announcements)
 CREATE TABLE IF NOT EXISTS supply_alerts (
@@ -181,6 +184,7 @@ GROUP BY z.zone_id;
 -- ====================================================================
 
 -- Trigger 1: Automatically update consumer's last meter reading when new bill is added
+DROP TRIGGER IF EXISTS trg_update_consumer_meter_reading;
 CREATE TRIGGER IF NOT EXISTS trg_update_consumer_meter_reading
 AFTER INSERT ON bills
 BEGIN
@@ -189,11 +193,17 @@ BEGIN
     WHERE consumer_id = NEW.consumer_id;
 END;
 
--- Trigger 2: Automatically mark bill as PAID when a payment is inserted
+-- Trigger 2: Automatically mark bill as PAID when payment(s) cover total amount
+DROP TRIGGER IF EXISTS trg_mark_bill_paid;
 CREATE TRIGGER IF NOT EXISTS trg_mark_bill_paid
 AFTER INSERT ON payments
 BEGIN
     UPDATE bills
     SET status = 'PAID'
-    WHERE bill_id = NEW.bill_id;
+    WHERE bill_id = NEW.bill_id
+      AND (
+          SELECT COALESCE(SUM(amount_paid), 0)
+          FROM payments
+          WHERE bill_id = NEW.bill_id
+      ) >= total_amount;
 END;

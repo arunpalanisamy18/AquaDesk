@@ -1,0 +1,293 @@
+Total sections: 12
+Total paragraphs: 169
+Total tables: 1
+
+
+================ SECTION 0 (Page 1) ================
+Start type: CONTINUOUS (0)
+Page size: 595.0 x 841.0 pt
+Margins: top=71.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 1 (Page 2) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 2 (Page 3) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=96.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 3 (Page 4) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 4 (Page 5) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 5 (Page 6) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 6 (Page 7) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 7 (Page 8) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 8 (Page 9) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 9 (Page 10) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 10 (Page 11) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=68.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ SECTION 11 (Page 12) ================
+Start type: NEW_PAGE (2)
+Page size: 595.0 x 841.0 pt
+Margins: top=96.0, bottom=14.0, left=63.8, right=70.8
+Header: ''
+Footer: ''
+
+================ PARAGRAPHS PER SECTION ================
+
+--- SECTION 0 (Page 1) has 20 paragraphs ---
+P000 [DRAWING count=1] (style=Normal): 
+P001 (style=Body Text): 
+P002 (style=Body Text): 
+P003 (style=Normal): SCHOOL OF COMPUTER SCIENCE AND TECHNOLOGY DIVISION OF COMPUTER SCIENCE AND ENGINEERING
+P004 (style=Normal): A PROJECT BASED EVALUATION REPORT
+P005 (style=Body Text): 
+P006 (style=Body Text): 
+P007 (style=Normal): SUBMITTED BY STUDENT NAME (REG.NO)
+P008 (style=Body Text): 
+P009 (style=Body Text): 
+P010 (style=Body Text): 
+P011 (style=Normal): COURSE CODE 23CS2013
+P012 (style=Body Text): 
+P013 (style=Body Text): 
+P014 (style=Normal): COURSE NAME DATABASE MANAGEMENT SYSTEMS
+P015 (style=Body Text): 
+P016 (style=Body Text): 
+P017 (style=Body Text): 
+P018 (style=Normal): OCTOBER 2026
+P019 (style=Normal): 
+
+--- SECTION 1 (Page 2) has 6 paragraphs ---
+P020 (style=Normal): ONLINE CERTIFICATE
+P021 (style=Body Text): 
+P022 (style=Body Text): 
+P023 (style=Body Text): 
+P024 (style=Body Text): <<The certificate & the mark sheet to be attached here>>
+P025 (style=Body Text): 
+
+--- SECTION 2 (Page 3) has 29 paragraphs ---
+P026 (style=Body Text): 
+P027 [DRAWING count=1] (style=Normal): 
+P028 (style=Body Text): 
+P029 (style=Heading 1): TITLE
+P030 (style=Body Text): <Font Size 18> <1.5 line spacing>
+P031 (style=Body Text): 
+P032 (style=Body Text): 
+P033 (style=Body Text): 
+P034 (style=Normal): A REAL TIME PROJECT REPORT
+P035 (style=Body Text): 
+P036 (style=Body Text): 
+P037 (style=Normal): Submitted by
+P038 (style=Heading 2): STUDENT NAME (Reg.No(s))
+P039 (style=Body Text): <Font Size 16>
+P040 (style=Body Text): 
+P041 (style=Body Text): 
+P042 (style=Body Text): 
+P043 (style=Body Text): 
+P044 [DRAWING count=1] (style=Body Text): 
+P045 (style=Body Text): 
+P046 (style=Body Text): 
+P047 (style=Body Text): 
+P048 (style=Body Text): 
+P049 (style=Body Text): 
+P050 (style=Normal): DIVISION OF COMPUTER SCIENCE AND ENGINEERING
+P051 (style=Body Text): 
+P052 (style=Body Text): 
+P053 (style=Heading 2): OCTOBER 2026
+P054 (style=Heading 2): 
+
+--- SECTION 3 (Page 4) has 12 paragraphs ---
+P055 (style=Normal): ABSTRACT
+P056 (style=Body Text): 
+P057 (style=List Paragraph): A brief summary of the project
+P058 (style=List Paragraph): Objectives and scope of the project
+P059 (style=List Paragraph): Key features and functionalities
+P060 (style=Body Text): 
+P061 (style=Body Text): 
+P062 (style=Body Text): 
+P063 (style=Normal): <<write the content here>>
+P064 (style=Normal): << Font size-12>>
+P065 (style=Normal): <<Font- Times new Roman>>
+P066 (style=Normal): 
+
+--- SECTION 4 (Page 5) has 12 paragraphs ---
+P067 (style=Normal): CHAPTER 1 INTRODUCTION
+P068 (style=Body Text): 
+P069 (style=List Paragraph): Background information about the project
+P070 (style=List Paragraph): Problem statement and motivation
+P071 (style=List Paragraph): Overview of the concepts used (Micro Processor & concepts in COA)
+P072 (style=Body Text): 
+P073 (style=Body Text): 
+P074 (style=Body Text): 
+P075 (style=Normal): <<write the content here>>
+P076 (style=Normal): << Font size-12>>
+P077 (style=Normal): <<Font- Times new Roman>>
+P078 (style=Normal): 
+
+--- SECTION 5 (Page 6) has 11 paragraphs ---
+P079 (style=Normal): CHAPTER 2 SYSTEM DESIGN
+P080 (style=Body Text): 
+P081 (style=List Paragraph): Architecture and high-level design of the system
+P082 (style=List Paragraph): Block diagrams (architecture diagram, flow diagram, etc.)
+P083 (style=List Paragraph): Description of the product working flow with necessary diagram
+P084 (style=Body Text): 
+P085 (style=Body Text): 
+P086 (style=Normal): <<write the content here>>
+P087 (style=Normal): << Font size-12>>
+P088 (style=Normal): <<Font- Times new Roman>>
+P089 (style=Normal): 
+
+--- SECTION 6 (Page 7) has 13 paragraphs ---
+P090 (style=Normal): CHAPTER 3 IMPLEMENTATION AND SCREEN SHOT
+P091 (style=Body Text): 
+P092 (style=Body Text): 
+P093 (style=List Paragraph): Detailed explanation of the implementation process
+P094 (style=List Paragraph): Example real time application or product
+P095 (style=List Paragraph): IoT module includes microprocessor, components and other required modules used in the product
+P096 (style=Body Text): 
+P097 (style=Body Text): 
+P098 (style=Body Text): 
+P099 (style=Body Text): <<write the content here>>
+P100 (style=Body Text): << Font size-12>>
+P101 (style=Body Text): <<Font- Times new Roman>>
+P102 (style=Body Text): 
+
+--- SECTION 7 (Page 8) has 12 paragraphs ---
+P103 (style=Normal): CHAPTER 4 TESTING AND VALIDATION
+P104 (style=Body Text): 
+P105 (style=List Paragraph): Description of the testing approach and methodologies used
+P106 (style=List Paragraph): Test cases and results
+P107 (style=List Paragraph): Validation of the system against the requirements
+P108 (style=Body Text): 
+P109 (style=Body Text): 
+P110 (style=Body Text): 
+P111 (style=Normal): <<write the content here>>
+P112 (style=Normal): << Font size-12>>
+P113 (style=Normal): <<Font- Times new Roman>>
+P114 (style=Normal): 
+
+--- SECTION 8 (Page 9) has 13 paragraphs ---
+P115 (style=Normal): CHAPTER 5 RESULTS AND DISCUSSION
+P116 (style=Body Text): 
+P117 (style=Body Text): 
+P118 (style=List Paragraph): Presentation of the final system
+P119 (style=List Paragraph): Evaluation of the project's success in achieving its objectives
+P120 (style=List Paragraph): Discussion of any challenges faced during the development process
+P121 (style=Body Text): 
+P122 (style=Body Text): 
+P123 (style=Body Text): 
+P124 (style=Normal): <<write the content here>>
+P125 (style=Normal): << Font size-12>>
+P126 (style=Normal): <<Font- Times new Roman>>
+P127 (style=Normal): 
+
+--- SECTION 9 (Page 10) has 13 paragraphs ---
+P128 (style=Normal): CONCLUSION
+P129 (style=Body Text): 
+P130 (style=Body Text): 
+P131 (style=Body Text): 
+P132 (style=List Paragraph): Summary of the project
+P133 (style=List Paragraph): Achievements and limitations
+P134 (style=List Paragraph): Future enhancements and recommendations
+P135 (style=Body Text): 
+P136 (style=Body Text): 
+P137 (style=Normal): <<write the content here>>
+P138 (style=Normal): << Font size-12>>
+P139 (style=Normal): <<Font- Times new Roman>>
+P140 (style=Normal): 
+
+--- SECTION 10 (Page 11) has 10 paragraphs ---
+P141 (style=Normal): REFERENCES
+P142 (style=List Paragraph): ​
+P143 (style=Body Text): 
+P144 (style=Body Text): 
+P145 (style=List Paragraph): List of all the references and resources used in the project
+P146 (style=Body Text): 
+P147 (style=Normal): <<list the reference here with bullet>>
+P148 (style=Normal): << Font size-12>>
+P149 (style=Normal): <<Font- Times new Roman>>
+P150 (style=Normal): 
+
+--- SECTION 11 (Page 12) has 18 paragraphs ---
+P151 (style=Body Text): 
+P152 (style=Body Text): 
+P153 (style=Normal): EVALUATION SHEET
+P154 (style=Body Text): 
+P155 (style=Normal): Reg. No:
+P156 (style=Normal): Name:
+P157 (style=Normal): Course code: 23CS2013
+P158 (style=Normal): Course Name: DATABASE MANAGEMENT SYSTEMS
+P159 (style=Body Text): 
+P160 (style=Body Text): 
+P161 (style=Body Text): 
+P162 (style=Body Text): 
+P163 (style=Body Text): 
+P164 (style=Body Text): 
+P165 (style=Body Text): 
+P166 (style=Body Text): 
+P167 (style=Body Text): 
+P168 (style=Normal): Signature of the Faculty-in-charge	[FACULTY NAME]
+
+================ TABLES ================
+
+--- TABLE 0 (rows=6, cols=4) ---
+  Row 00: S. No | Rubrics | Maximum Marks | Marks Obtained
+  Row 01: 1 | Online	Certification	Completion (Online Course) | 15 | 
+  Row 02: 2 | Problem statement and SQL implementation | 10 | 
+  Row 03: 3 | Application development | 12 | 
+  Row 04: 4 | Presentation & Documentation | 3 | 
+  Row 05: Total | Total | 40 | 

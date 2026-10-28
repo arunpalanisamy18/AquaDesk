@@ -1,57 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}Consumer Registration - AquaFlow Water Utility{% endblock %}
+{% block title %}Register Water Connection - AquaFlow{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto py-8">
-    
-    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-10">
-        
-        <div class="mb-6">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-aqua-50 text-aqua-700 text-xs font-semibold mb-2">
-                <i class="fa-solid fa-droplet text-aqua-500"></i> New Water Connection
-            </span>
-            <h2 class="text-2xl font-bold text-slate-900">Register Consumer Account</h2>
-            <p class="text-sm text-slate-500 mt-1">Connect your household or business water meter to receive digital bills and monitor live grid supply.</p>
+<div class="max-w-2xl mx-auto py-4 sm:py-8">
+
+    <!-- Card Container -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8">
+
+        <!-- Header -->
+        <div class="border-b border-slate-200 pb-4 mb-6">
+            <div class="flex items-center gap-2 mb-1">
+                <a href="{{ url_for('select_consumer') }}" class="text-xs text-slate-500 hover:text-sky-600 transition flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Consumers</span>
+                </a>
+                <span class="text-slate-300">/</span>
+                <span class="text-xs font-semibold text-slate-700">New Connection</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Register Consumer Connection</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Enroll a household or commercial water meter into the municipal billing database.</p>
         </div>
 
         <form method="POST" action="{{ url_for('register') }}" class="space-y-4">
-            
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <!-- Personal / Contact Details -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
-                    <input type="text" name="full_name" required placeholder="e.g. Ramesh Kulkarni"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name <span class="text-rose-500">*</span></label>
+                    <input type="text" name="full_name" required placeholder="e.g. Meera Joshi"
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Username (Login ID)</label>
-                    <input type="text" name="username" required placeholder="e.g. ramesh_k"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Username (Login ID) <span class="text-rose-500">*</span></label>
+                    <input type="text" name="username" required placeholder="e.g. meera_j"
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
-                    <input type="email" name="email" required placeholder="ramesh@example.com"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email Address <span class="text-rose-500">*</span></label>
+                    <input type="email" name="email" required placeholder="meera@example.com"
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
                     <input type="tel" name="phone" placeholder="+91 98765 43210"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password</label>
-                    <input type="password" name="password" required placeholder="••••••••"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <input type="password" name="password" placeholder="•••••••• (Default: password123)"
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Connection Type</label>
-                    <select name="connection_type" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <select name="connection_type" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                         <option value="Residential">Residential (Household)</option>
                         <option value="Commercial">Commercial (Shops / Clinics / Offices)</option>
                         <option value="Industrial">Industrial (Factories / Workshops)</option>
@@ -59,10 +68,11 @@
                 </div>
             </div>
 
+            <!-- Supply Zone and Initial Reading -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Supply Zone / Ward</label>
-                    <select name="zone_id" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Supply Ward / Zone <span class="text-rose-500">*</span></label>
+                    <select name="zone_id" required class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition">
                         {% for z in zones %}
                             <option value="{{ z.zone_id }}">{{ z.zone_name }} ({{ z.ward_area }})</option>
                         {% endfor %}
@@ -71,28 +81,28 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Initial Meter Reading (kL)</label>
                     <input type="number" step="0.01" name="initial_reading" value="0.00"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition">
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm font-mono outline-none transition">
                 </div>
             </div>
 
+            <!-- Address -->
             <div>
-                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Premises Address</label>
-                <textarea name="address" rows="2" required placeholder="House/Flat number, Street, Locality, Ward"
-                          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-aqua-500 focus:ring-2 focus:ring-aqua-200 text-sm outline-none transition"></textarea>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Premises Address <span class="text-rose-500">*</span></label>
+                <textarea name="address" rows="2" required placeholder="House/Flat number, Street name, Locality, Ward"
+                          class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 text-sm outline-none transition"></textarea>
             </div>
 
-            <div class="pt-4">
-                <button type="submit" class="w-full bg-aqua-600 hover:bg-aqua-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>Register Connection & Create Account</span>
+            <div class="pt-3 flex flex-col sm:flex-row items-center gap-3">
+                <button type="submit" class="w-full sm:w-auto flex-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm shadow-sm transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-check"></i>
+                    <span>Register Connection</span>
                 </button>
+                <a href="{{ url_for('select_consumer') }}" class="w-full sm:w-auto px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition text-center">
+                    Cancel
+                </a>
             </div>
 
         </form>
-
-        <div class="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
-            Already have an active account? <a href="{{ url_for('login') }}" class="font-semibold text-aqua-600 hover:text-aqua-700">Sign in here</a>
-        </div>
 
     </div>
 

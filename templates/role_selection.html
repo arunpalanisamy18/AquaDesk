@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}AquaFlow - Select Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-6 sm:py-12">
+
+    <!-- Municipal Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-xs font-semibold mb-3">
+            <i class="fa-solid fa-building-columns text-sky-600"></i>
+            <span>Municipal Water Authority • Academic Demonstration</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Water Supply & Billing System</h1>
+        <p class="text-sm text-slate-600 max-w-xl mx-auto mt-2">
+            Select a portal to explore the dual-dashboard telemetry grid and billing engine.
+            <span class="block text-slate-400 text-xs mt-1">Local academic demo access without credentials.</span>
+        </p>
+    </div>
+
+    <!-- Two Primary Role Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+
+        <!-- 1. Administrator Portal Card -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md transition p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xl mb-4 shadow-sm">
+                    <i class="fa-solid fa-shield-halved text-rose-400"></i>
+                </div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <h2 class="text-lg font-bold text-slate-900">Administrator Portal</h2>
+                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">Municipal Admin</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                    Inspect reservoir levels, pipeline pressure, and water purity across all 4 supply wards. Generate utility bills with slab tariffs and manage citizen grievances.
+                </p>
+                <div class="space-y-1.5 text-[11px] text-slate-500 mb-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Grid pressure & reservoir telemetry monitoring</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Tariff billing engine & master revenue ledger</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Supply slot scheduling & citizen alerts</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('select_role_admin') }}" class="w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 px-4 rounded-lg text-sm shadow-sm transition">
+                <span>Enter as Administrator</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <!-- 2. Consumer Portal Card -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md transition p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-lg bg-sky-600 text-white flex items-center justify-center text-xl mb-4 shadow-sm">
+                    <i class="fa-solid fa-house-chimney text-sky-100"></i>
+                </div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <h2 class="text-lg font-bold text-slate-900">Consumer Portal</h2>
+                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-sky-50 text-sky-700 border border-sky-200">Citizen Access</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                    Choose from registered residential, commercial, or industrial accounts to inspect ward supply schedules, view newly posted utility bills, make digital payments, and download tax invoices.
+                </p>
+                <div class="space-y-1.5 text-[11px] text-slate-500 mb-6">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Personalized smart meter & ward telemetry</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Digital payments (UPI, Card, Net Banking)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-sky-600 text-xs"></i>
+                        <span>Printable official municipal tax invoices</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('select_consumer') }}" class="w-full inline-flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-4 rounded-lg text-sm shadow-sm transition">
+                <span>Select Consumer Account</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Registration Link Footer -->
+    <div class="mt-8 text-center text-xs text-slate-500">
+        <span>Need to add a new water utility connection?</span>
+        <a href="{{ url_for('register') }}" class="font-semibold text-sky-600 hover:text-sky-700 ml-1 hover:underline">
+            Register New Consumer Connection &rarr;
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+

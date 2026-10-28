@@ -21,7 +21,7 @@
         </a>
     </div>
 
-    <!-- Bill Generator Form Card (Target for user requirement) -->
+    <!-- Bill Generator Form Card -->
     <div id="bill-generator" class="bg-white rounded-2xl shadow-md border border-aqua-200 overflow-hidden">
         
         <div class="bg-gradient-to-r from-slate-900 via-aqua-950 to-slate-900 px-6 py-4 text-white flex items-center justify-between">
@@ -40,6 +40,7 @@
         </div>
 
         <form method="POST" action="{{ url_for('admin_billing') }}" class="p-6 md:p-8 space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
@@ -198,45 +199,48 @@
         </form>
     </div>
 
-    <!-- Bills Directory / History Table -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+    <!-- Master Bills Ledger Table -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-4">
         
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
-                <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-aqua-600"></i>
-                    All Water Utility Bills ({{ bills|length }})
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice text-slate-500"></i>
+                    Master Water Utility Billing Ledger
                 </h3>
-                <p class="text-xs text-slate-500">Filter, inspect, and track consumer payments</p>
+                <p class="text-xs text-slate-500">Complete archive of generated bills, meter consumption delta, and settlement statuses</p>
             </div>
 
-            <!-- Filter Tabs -->
-            <div class="inline-flex rounded-xl bg-slate-100 p-1 text-xs">
-                <a href="{{ url_for('admin_billing', status='ALL') }}" class="px-3 py-1.5 rounded-lg font-semibold transition {% if current_filter == 'ALL' %}bg-white text-slate-900 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+            <!-- Filter Status Tabs -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+                <a href="{{ url_for('admin_billing', status='ALL') }}" class="px-3 py-1.5 rounded-lg {% if current_filter == 'ALL' or not current_filter %}bg-white text-slate-900 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
                     All Bills
                 </a>
-                <a href="{{ url_for('admin_billing', status='UNPAID') }}" class="px-3 py-1.5 rounded-lg font-semibold transition {% if current_filter == 'UNPAID' %}bg-amber-500 text-white shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
-                    Pending / Unpaid
+                <a href="{{ url_for('admin_billing', status='UNPAID') }}" class="px-3 py-1.5 rounded-lg {% if current_filter == 'UNPAID' %}bg-white text-amber-700 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                    Unpaid
                 </a>
-                <a href="{{ url_for('admin_billing', status='PAID') }}" class="px-3 py-1.5 rounded-lg font-semibold transition {% if current_filter == 'PAID' %}bg-emerald-600 text-white shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                <a href="{{ url_for('admin_billing', status='PAID') }}" class="px-3 py-1.5 rounded-lg {% if current_filter == 'PAID' %}bg-white text-emerald-700 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
                     Paid
+                </a>
+                <a href="{{ url_for('admin_billing', status='OVERDUE') }}" class="px-3 py-1.5 rounded-lg {% if current_filter == 'OVERDUE' %}bg-white text-rose-700 shadow-sm{% else %}text-slate-600 hover:text-slate-900{% endif %}">
+                    Overdue
                 </a>
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="border-b border-slate-200 text-slate-500 uppercase tracking-wider bg-slate-50/50">
-                        <th class="py-3 px-3">Bill Number</th>
-                        <th class="py-3 px-3">Consumer Details</th>
-                        <th class="py-3 px-3">Billing Cycle</th>
-                        <th class="py-3 px-3">Readings (Prev &rarr; Curr)</th>
-                        <th class="py-3 px-3">Consumed</th>
-                        <th class="py-3 px-3">Amount</th>
-                        <th class="py-3 px-3">Due Date</th>
-                        <th class="py-3 px-3">Status</th>
-                        <th class="py-3 px-3 text-right">Invoice</th>
+                <thead class="text-slate-400 uppercase tracking-wider text-[10px] bg-slate-50/50 border-y border-slate-100">
+                    <tr>
+                        <th class="py-2.5 px-3">Bill Number</th>
+                        <th class="py-2.5 px-3">Consumer</th>
+                        <th class="py-2.5 px-3">Cycle</th>
+                        <th class="py-2.5 px-3">Readings (Prev &rarr; Curr)</th>
+                        <th class="py-2.5 px-3">Units (kL)</th>
+                        <th class="py-2.5 px-3">Total Amount</th>
+                        <th class="py-2.5 px-3">Due Date</th>
+                        <th class="py-2.5 px-3">Status</th>
+                        <th class="py-2.5 px-3 text-right">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -253,11 +257,15 @@
                             </td>
                             <td class="py-3 px-3 font-bold text-slate-800">{{ b.units_consumed }} kL</td>
                             <td class="py-3 px-3 font-extrabold text-slate-900">₹{{ "{:,.2f}".format(b.total_amount) }}</td>
-                            <td class="py-3 px-3 text-slate-600">{{ b.due_date }}</td>
+                            <td class="py-3 px-3 text-slate-600">{{ b.due_date | format_date }}</td>
                             <td class="py-3 px-3">
                                 {% if b.status == 'PAID' %}
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
                                         <i class="fa-solid fa-circle-check"></i> PAID
+                                    </span>
+                                {% elif b.status == 'OVERDUE' %}
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> OVERDUE
                                     </span>
                                 {% else %}
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
@@ -329,7 +337,7 @@
             prevInput.value = lastReading.toFixed(2);
             activeConnectionType = ctype;
 
-            // Suggest a current reading (+15 kL default for convenience)
+            // Suggest a current reading (+18 kL default for convenience)
             if (!currInput.value || parseFloat(currInput.value) <= lastReading) {
                 currInput.value = (lastReading + 18.0).toFixed(2);
             }
@@ -382,18 +390,18 @@
                 } else {
                     consCharge = (30 * 22.0) + ((units - 30) * 36.0);
                 }
-            } else { // Industrial
+            } else {  // Industrial
                 baseCharge = 400.0;
                 taxPct = 0.10;
                 consCharge = units * 48.0;
             }
 
-            const tax = consCharge * taxPct;
-            const total = baseCharge + consCharge + tax;
+            const taxSurcharge = Math.round(consCharge * taxPct * 100) / 100;
+            const total = Math.round((baseCharge + consCharge + taxSurcharge) * 100) / 100;
 
             calcBase.textContent = `₹${baseCharge.toFixed(2)}`;
             calcConsumption.textContent = `₹${consCharge.toFixed(2)}`;
-            calcTax.textContent = `₹${tax.toFixed(2)}`;
+            calcTax.textContent = `₹${taxSurcharge.toFixed(2)}`;
             calcTotal.textContent = `₹${total.toFixed(2)}`;
         }
     });

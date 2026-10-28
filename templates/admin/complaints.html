@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-xs text-slate-400">{{ c.created_at }}</span>
+                        <span class="text-xs text-slate-400">{{ c.created_at | utc_to_ist }}</span>
                         <span class="px-2.5 py-1 rounded-full text-[11px] font-bold {% if c.status == 'Resolved' %}bg-emerald-100 text-emerald-800{% elif c.status == 'In Progress' %}bg-sky-100 text-sky-800{% else %}bg-amber-100 text-amber-800{% endif %}">
                             {{ c.status }}
                         </span>
@@ -45,8 +45,16 @@
                     {{ c.description }}
                 </div>
 
+                {% if c.resolved_at %}
+                    <div class="text-[11px] text-emerald-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-check-double text-emerald-600"></i>
+                        <span>Resolved on: {{ c.resolved_at | utc_to_ist }}</span>
+                    </div>
+                {% endif %}
+
                 <!-- Admin Action / Response form -->
                 <form method="POST" action="{{ url_for('admin_complaints') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end pt-2 text-xs">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <input type="hidden" name="complaint_id" value="{{ c.complaint_id }}">
                     <div class="sm:col-span-3">
                         <label class="block font-semibold text-slate-600 mb-1">Update Status</label>

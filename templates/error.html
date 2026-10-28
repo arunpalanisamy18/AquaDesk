@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}AquaFlow - {{ error_code or "Notice" }}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-12 text-center">
+    <div class="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center mx-auto mb-4 text-2xl shadow-sm">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+    </div>
+    <span class="text-xs uppercase font-bold tracking-wider px-2.5 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">
+        HTTP {{ error_code }} Error
+    </span>
+    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-3">{{ error_title }}</h1>
+    <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mt-2 leading-relaxed">
+        {{ error_message }}
+    </p>
+    <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="{{ url_for('select_role') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-sm transition">
+            <i class="fa-solid fa-house text-xs"></i>
+            <span>Return to Portal Hub</span>
+        </a>
+        <button onclick="window.history.back()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium transition">
+            <i class="fa-solid fa-arrow-left text-xs"></i>
+            <span>Go Back</span>
+        </button>
+    </div>
+</div>
+{% endblock %}
+

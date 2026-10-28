@@ -28,6 +28,7 @@
         </h2>
 
         <form method="POST" action="{{ url_for('consumer_complaints') }}" class="space-y-4 text-xs">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -82,7 +83,7 @@
                     </div>
                     <p class="text-slate-600">{{ c.description }}</p>
                     <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200">
-                        <span>Submitted on {{ c.created_at }}</span>
+                        <span>Submitted on {{ c.created_at | utc_to_ist }}</span>
                         {% if c.admin_response %}
                             <span class="text-emerald-700 font-semibold"><i class="fa-solid fa-comment-dots"></i> Municipal Note: {{ c.admin_response }}</span>
                         {% endif %}

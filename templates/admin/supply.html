@@ -45,6 +45,7 @@
 
                     <!-- Telemetry Adjustment Form -->
                     <form method="POST" action="{{ url_for('admin_supply') }}" class="space-y-4 text-xs">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <input type="hidden" name="action" value="update_zone">
                         <input type="hidden" name="zone_id" value="{{ z.zone_id }}">
 
@@ -102,22 +103,19 @@
         </div>
     </div>
 
-    <!-- Broadcast Alert / Notice Form -->
-    <div id="broadcast-form" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-        <div class="mb-4">
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <i class="fa-solid fa-bullhorn text-amber-500"></i>
-                Publish Outage Notice or Quality Advisory
-            </h3>
-            <p class="text-xs text-slate-500">Advisories appear instantly on the dashboards of consumers living in the targeted zone</p>
-        </div>
+    <!-- Broadcast Advisory Form -->
+    <div id="broadcast-form" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-4">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-bullhorn text-amber-500"></i> Broadcast Emergency Outage or Pipeline Notice
+        </h3>
 
         <form method="POST" action="{{ url_for('admin_supply') }}" class="space-y-4 text-xs">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="action" value="add_alert">
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="block font-semibold text-slate-700 uppercase mb-1">Target Distribution Zone</label>
+                    <label class="block font-semibold text-slate-700 uppercase mb-1">Target Zone / Area</label>
                     <select name="zone_id" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium">
                         <option value="">All Zones (Entire Municipality)</option>
                         {% for z in zones %}
@@ -181,11 +179,14 @@
                             <td class="py-3 px-3 font-semibold text-slate-900">{{ a.title }}</td>
                             <td class="py-3 px-3 text-slate-600">{{ a.zone_name or 'All Zones' }}</td>
                             <td class="py-3 px-3 text-slate-500 max-w-xs truncate">{{ a.message }}</td>
-                            <td class="py-3 px-3 text-slate-400 text-[11px]">{{ a.posted_at }}</td>
+                            <td class="py-3 px-3 text-slate-400 text-[11px]">{{ a.posted_at | utc_to_ist }}</td>
                             <td class="py-3 px-3 text-right">
-                                <a href="{{ url_for('admin_toggle_alert', alert_id=a.alert_id, status=0) }}" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
-                                    Archive
-                                </a>
+                                <form method="POST" action="{{ url_for('admin_toggle_alert', alert_id=a.alert_id, status=0) }}" class="inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+                                        Archive
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% else %}

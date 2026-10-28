@@ -49,7 +49,7 @@
                             <td class="py-3 px-3 text-slate-600">₹{{ "{:,.2f}".format(b.base_charge) }}</td>
                             <td class="py-3 px-3 text-slate-600">₹{{ "{:,.2f}".format(b.consumption_charge + b.tax_surcharge) }}</td>
                             <td class="py-3 px-3 font-black text-slate-900 text-sm">₹{{ "{:,.2f}".format(b.total_amount) }}</td>
-                            <td class="py-3 px-3 text-slate-600">{{ b.due_date }}</td>
+                            <td class="py-3 px-3 text-slate-600">{{ b.due_date | format_date }}</td>
                             <td class="py-3 px-3">
                                 {% if b.status == 'PAID' %}
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
@@ -58,6 +58,13 @@
                                     {% if b.receipt_number %}
                                         <div class="text-[9px] text-slate-400 font-mono mt-0.5">{{ b.receipt_number }}</div>
                                     {% endif %}
+                                    {% if b.payment_date %}
+                                        <div class="text-[9px] text-slate-400 mt-0.5">{{ b.payment_date | utc_to_ist }}</div>
+                                    {% endif %}
+                                {% elif b.status == 'OVERDUE' %}
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> OVERDUE
+                                    </span>
                                 {% else %}
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 inline-flex items-center gap-1">
                                         <i class="fa-regular fa-clock"></i> UNPAID
@@ -65,7 +72,7 @@
                                 {% endif %}
                             </td>
                             <td class="py-3 px-3 text-right space-x-1">
-                                {% if b.status == 'UNPAID' %}
+                                {% if b.status in ('UNPAID', 'OVERDUE') %}
                                     <button onclick="openPaymentModal({{ b.bill_id }}, '{{ b.bill_number }}', {{ b.total_amount }}, '{{ b.billing_month }}')"
                                             class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-sm">
                                         <i class="fa-solid fa-credit-card text-[10px]"></i> Pay Now
@@ -73,7 +80,7 @@
                                 {% endif %}
                                 <a href="{{ url_for('view_bill_invoice', bill_id=b.bill_id) }}" target="_blank"
                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-aqua-50 text-slate-700 hover:text-aqua-700 font-semibold border border-slate-200 transition" title="Print/View Tax Invoice">
-                                    <i class="fa-solid fa-print"></i> Receipt
+                                    <i class="fa-solid fa-print"></i> Invoice
                                 </a>
                             </td>
                         </tr>
@@ -102,8 +109,8 @@
                     <i class="fa-solid fa-credit-card"></i>
                 </span>
                 <div>
-                    <h3 class="font-bold text-slate-900 text-base">Pay Municipal Water Bill</h3>
-                    <p class="text-[11px] text-slate-400">Official Municipal Payment Gateway</p>
+                    <h3 class="font-bold text-slate-900 text-base">Municipal Water Utility Payment</h3>
+                    <p class="text-[11px] text-slate-400">Secure Instant Payment Gateway</p>
                 </div>
             </div>
             <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600">
@@ -112,18 +119,20 @@
         </div>
 
         <form id="pay-form" method="POST" action="" class="space-y-4 text-xs">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center space-y-1">
-                <span class="text-slate-400 uppercase text-[10px] font-bold tracking-wider" id="modal-bill-month">Cycle</span>
+                <span class="text-slate-400 uppercase text-[10px] font-bold tracking-wider" id="modal-bill-month">October 2026</span>
                 <div class="text-3xl font-black text-slate-900 font-mono" id="modal-amount">₹0.00</div>
                 <div class="text-[11px] text-slate-500 font-mono" id="modal-bill-no">BILL-XXXX</div>
             </div>
 
             <div class="space-y-2">
-                <label class="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">Select Payment Channel</label>
+                <label class="block font-bold text-slate-700 uppercase tracking-wider text-[11px]">Choose Payment Channel</label>
                 <div class="grid grid-cols-2 gap-2">
                     <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
                         <input type="radio" name="payment_method" value="UPI" checked class="text-aqua-600">
-                        <span class="font-semibold text-slate-800">UPI / QR</span>
+                        <span class="font-semibold text-slate-800">UPI / QR Code</span>
                     </label>
                     <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-aqua-500 cursor-pointer bg-white transition">
                         <input type="radio" name="payment_method" value="Credit/Debit Card" class="text-aqua-600">
@@ -142,7 +151,7 @@
 
             <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-800 text-[11px] flex items-center gap-2">
                 <i class="fa-solid fa-lock text-emerald-600"></i>
-                <span>Payment triggers instant status change to PAID across all dashboards!</span>
+                <span>Database trigger will immediately execute and mark the bill as PAID!</span>
             </div>
 
             <div class="flex gap-2 pt-2">
@@ -150,12 +159,14 @@
                     Cancel
                 </button>
                 <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-md hover:shadow-lg transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-check-circle"></i> Pay Bill Now
+                    <i class="fa-solid fa-check-circle"></i> Confirm & Pay
                 </button>
             </div>
+
         </form>
     </div>
 </div>
+
 {% endblock %}
 
 {% block scripts %}

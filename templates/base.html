@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Water Supply Monitoring & Consumer Billing System{% endblock %}</title>
+    <title>{% block title %}AquaFlow - Water Supply Monitoring & Consumer Billing{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💧</text></svg>">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -32,115 +33,116 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
         @media print {
             .no-print { display: none !important; }
         }
     </style>
     {% block head %}{% endblock %}
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen antialiased overflow-x-hidden">
 
     <!-- Top Navigation Bar -->
-    <header class="bg-gradient-to-r from-slate-900 via-aqua-950 to-slate-900 text-white shadow-lg sticky top-0 z-40 no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {% set is_public_page = request.endpoint in ['index', 'select_role', 'select_consumer', 'login', 'register'] %}
+    <header class="bg-slate-900 border-b border-slate-800 text-white shadow-sm sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 
                 <!-- Logo & Brand -->
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-aqua-500/20 border border-aqua-400/30 flex items-center justify-center text-aqua-400 shadow-inner">
-                        <i class="fa-solid fa-droplet text-xl"></i>
+                <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-sky-500/20 border border-sky-400/30 flex items-center justify-center text-sky-400 shrink-0">
+                        <i class="fa-solid fa-droplet text-base sm:text-lg"></i>
                     </div>
-                    <div>
-                        <a href="{{ url_for('index') }}" class="text-lg font-bold tracking-tight text-white hover:text-aqua-300 transition flex items-center gap-2">
-                            AquaFlow <span class="text-xs px-2 py-0.5 rounded-full bg-aqua-500/30 text-aqua-200 border border-aqua-400/30 font-medium"></span>
-                        </a>
-                        <p class="text-[11px] text-slate-300 leading-none"></p>
+                    <div class="min-w-0">
+                        {% if not is_public_page and session.get('user_id') %}
+                            {% if session.get('role') == 'admin' %}
+                                <a href="{{ url_for('admin_dashboard') }}" class="text-sm sm:text-base font-bold tracking-tight text-white hover:text-sky-300 transition flex items-center gap-1.5 sm:gap-2">
+                                    AquaFlow
+                                    <span class="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-800/60 font-semibold">Admin Grid</span>
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('consumer_dashboard') }}" class="text-sm sm:text-base font-bold tracking-tight text-white hover:text-sky-300 transition flex items-center gap-1.5 sm:gap-2">
+                                    AquaFlow
+                                    <span class="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded bg-sky-950/60 text-sky-300 border border-sky-800/60 font-semibold">Consumer</span>
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('select_role') }}" class="text-sm sm:text-base font-bold tracking-tight text-white hover:text-sky-300 transition flex items-center gap-1.5 sm:gap-2">
+                                AquaFlow
+                                <span class="text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded bg-slate-800 text-sky-300 border border-slate-700 font-semibold">Utility Portal</span>
+                            </a>
+                        {% endif %}
+                        <p class="text-[10px] sm:text-[11px] text-slate-400 leading-none truncate max-w-[125px] sm:max-w-none">Municipal Water Monitoring & Billing</p>
                     </div>
                 </div>
 
-                <!-- Navigation Links depending on Role -->
-                {% if session.get('user_id') %}
+                <!-- Navigation Links depending on Role (Only on authenticated portal pages) -->
+                {% if not is_public_page and session.get('user_id') %}
                 <nav class="hidden md:flex items-center space-x-1">
                     {% if session.get('role') == 'admin' %}
                         <!-- Admin Nav Links -->
-                        <a href="{{ url_for('admin_dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('admin_dashboard') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-gauge-high mr-1.5 text-aqua-400"></i>Dashboard
+                        <a href="{{ url_for('admin_dashboard') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('admin_dashboard') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-gauge mr-1.5 text-sky-400"></i>Dashboard
                         </a>
-                        <a href="{{ url_for('admin_billing') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('admin_billing') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-file-invoice-dollar mr-1.5 text-emerald-400"></i>Add & Manage Bills
+                        <a href="{{ url_for('admin_billing') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('admin_billing') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-file-invoice mr-1.5 text-emerald-400"></i>Billing
                         </a>
-                        <a href="{{ url_for('admin_supply') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('admin_supply') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-faucet-drip mr-1.5 text-sky-400"></i>Supply Monitoring
+                        <a href="{{ url_for('admin_supply') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('admin_supply') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-faucet-drip mr-1.5 text-sky-400"></i>Supply Wards
                         </a>
-                        <a href="{{ url_for('admin_consumers') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('admin_consumers') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-users-gear mr-1.5 text-indigo-400"></i>Consumers
+                        <a href="{{ url_for('admin_consumers') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('admin_consumers') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-users mr-1.5 text-indigo-400"></i>Consumers
                         </a>
-                        <a href="{{ url_for('admin_complaints') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('admin_complaints') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
+                        <a href="{{ url_for('admin_complaints') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('admin_complaints') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
                             <i class="fa-solid fa-headset mr-1.5 text-amber-400"></i>Grievances
                         </a>
                     {% else %}
                         <!-- Consumer Nav Links -->
-                        <a href="{{ url_for('consumer_dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('consumer_dashboard') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-house-chimney-user mr-1.5 text-aqua-400"></i>My Dashboard
+                        <a href="{{ url_for('consumer_dashboard') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('consumer_dashboard') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-house-chimney mr-1.5 text-sky-400"></i>My Telemetry
                         </a>
-                        <a href="{{ url_for('consumer_bills') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('consumer_bills') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-receipt mr-1.5 text-emerald-400"></i>My Water Bills & Pay
+                        <a href="{{ url_for('consumer_bills') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('consumer_bills') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-receipt mr-1.5 text-emerald-400"></i>Water Bills & Pay
                         </a>
-                        <a href="{{ url_for('consumer_complaints') }}" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-800/80 hover:text-aqua-300 transition {% if request.path == url_for('consumer_complaints') %}bg-slate-800 text-aqua-300 border-b-2 border-aqua-400{% endif %}">
-                            <i class="fa-solid fa-circle-exclamation mr-1.5 text-rose-400"></i>Report Issue
+                        <a href="{{ url_for('consumer_complaints') }}" class="px-3 py-1.5 rounded-md text-xs font-medium hover:bg-slate-800 hover:text-sky-300 transition {% if request.path == url_for('consumer_complaints') %}bg-slate-800 text-sky-300 border-b-2 border-sky-400{% else %}text-slate-300{% endif %}">
+                            <i class="fa-solid fa-circle-exclamation mr-1.5 text-rose-400"></i>Grievances
                         </a>
                     {% endif %}
                 </nav>
                 {% endif %}
 
-                <!-- Right Side User Menu / Quick Switcher -->
-                <div class="flex items-center space-x-3">
-                    {% if session.get('user_id') %}
-                        <!-- Role Badge -->
-                        <div class="hidden sm:flex items-center bg-slate-800/90 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
-                            <span class="w-2 h-2 rounded-full mr-2 {% if session.get('role') == 'admin' %}bg-rose-400 animate-pulse{% else %}bg-emerald-400{% endif %}"></span>
-                            <span class="font-semibold text-slate-200 uppercase tracking-wider text-[10px] mr-1">{{ session.get('role') }}:</span>
-                            <span class="text-aqua-300 font-medium truncate max-w-[120px]">{{ session.get('full_name') }}</span>
+                <!-- Right Side User Menu / Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    {% if not is_public_page and session.get('user_id') %}
+                        <!-- Role & User Badge -->
+                        <div class="hidden sm:flex items-center bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+                            <span class="w-2 h-2 rounded-full mr-2 {% if session.get('role') == 'admin' %}bg-rose-400{% else %}bg-emerald-400{% endif %}"></span>
+                            <span class="text-slate-300 font-medium truncate max-w-[140px]">{{ session.get('full_name') }}</span>
+                            <span class="ml-1.5 px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[10px] uppercase font-mono">{{ session.get('role') }}</span>
                         </div>
 
-                        <!-- 1-Click Role Switcher for Viva / Presentation -->
-                        <div class="relative group">
-                            <button type="button" class="bg-aqua-600/30 hover:bg-aqua-600/50 border border-aqua-500/40 text-aqua-200 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-arrows-rotate"></i>
-                                <span class="hidden lg:inline">Switch Role</span>
-                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                            </button>
-                            <div class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-2 hidden group-hover:block group-focus-within:block z-50 text-xs">
-                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Demo Switcher</div>
-                                <a href="{{ url_for('quick_switch', role='admin', username='admin') }}" class="flex items-center px-3 py-2 text-slate-200 hover:bg-slate-800 hover:text-rose-400 transition">
-                                    <i class="fa-solid fa-user-shield w-5 text-rose-400"></i> Switch to Admin
-                                </a>
-                                <div class="border-t border-slate-800 my-1"></div>
-                                <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Consumers</div>
-                                <a href="{{ url_for('quick_switch', role='consumer', username='rahul_sharma') }}" class="flex items-center px-3 py-2 text-slate-200 hover:bg-slate-800 hover:text-aqua-300 transition">
-                                    <i class="fa-solid fa-house-user w-5 text-aqua-400"></i> Rahul (Residential - North)
-                                </a>
-                                <a href="{{ url_for('quick_switch', role='consumer', username='priya_patel') }}" class="flex items-center px-3 py-2 text-slate-200 hover:bg-slate-800 hover:text-aqua-300 transition">
-                                    <i class="fa-solid fa-house-user w-5 text-aqua-400"></i> Priya (Residential - South)
-                                </a>
-                                <a href="{{ url_for('quick_switch', role='consumer', username='apex_hospital') }}" class="flex items-center px-3 py-2 text-slate-200 hover:bg-slate-800 hover:text-aqua-300 transition">
-                                    <i class="fa-solid fa-hospital w-5 text-amber-400"></i> Apex Hospital (Commercial)
-                                </a>
-                            </div>
-                        </div>
+                        <!-- Switch Portal / Account Link -->
+                        <a href="{{ url_for('select_role') }}" title="Switch to another portal or account" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-repeat text-sky-400"></i>
+                            <span class="hidden sm:inline">Switch Portal</span>
+                        </a>
 
-                        <!-- Sign Out -->
-                        <a href="{{ url_for('logout') }}" title="Logout" class="p-2 text-slate-300 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition">
+                        <!-- Exit Session -->
+                        <a href="{{ url_for('logout') }}" title="Sign out" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 hover:bg-rose-900/40 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-rose-300 transition flex items-center gap-1">
                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span class="hidden sm:inline">Exit</span>
                         </a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="bg-aqua-600 hover:bg-aqua-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm">
-                            <i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> Sign In
+                        <a href="{{ url_for('select_role') }}" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                            <span>Choose Portal</span>
+                        </a>
+                        <a href="{{ url_for('register') }}" class="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 text-slate-300 transition">
+                            Register Connection
                         </a>
                     {% endif %}
                 </div>
@@ -148,31 +150,34 @@
             </div>
         </div>
 
-        <!-- Mobile Navigation bar -->
-        {% if session.get('user_id') %}
-        <div class="md:hidden border-t border-slate-800 bg-slate-900/95 px-4 py-2 flex items-center justify-around text-xs">
+        <!-- Mobile Navigation bar (Only on authenticated portal pages) -->
+        {% if not is_public_page and session.get('user_id') %}
+        <div class="md:hidden border-t border-slate-800 bg-slate-900/95 px-1 py-1.5 flex items-center justify-around text-[10px] sm:text-xs">
             {% if session.get('role') == 'admin' %}
-                <a href="{{ url_for('admin_dashboard') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-gauge text-sm mb-1"></i> Dashboard
+                <a href="{{ url_for('admin_dashboard') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-gauge text-xs mb-0.5"></i> Dashboard
                 </a>
-                <a href="{{ url_for('admin_billing') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-file-invoice text-sm mb-1"></i> Bills
+                <a href="{{ url_for('admin_billing') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-file-invoice text-xs mb-0.5"></i> Billing
                 </a>
-                <a href="{{ url_for('admin_supply') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-faucet-drip text-sm mb-1"></i> Supply
+                <a href="{{ url_for('admin_supply') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-faucet-drip text-xs mb-0.5"></i> Supply
                 </a>
-                <a href="{{ url_for('admin_consumers') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-users text-sm mb-1"></i> Consumers
+                <a href="{{ url_for('admin_consumers') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-users text-xs mb-0.5"></i> Users
+                </a>
+                <a href="{{ url_for('admin_complaints') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-headset text-xs mb-0.5"></i> Tickets
                 </a>
             {% else %}
-                <a href="{{ url_for('consumer_dashboard') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-house-chimney text-sm mb-1"></i> Dashboard
+                <a href="{{ url_for('consumer_dashboard') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-house-chimney text-xs mb-0.5"></i> Dashboard
                 </a>
-                <a href="{{ url_for('consumer_bills') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-receipt text-sm mb-1"></i> Water Bills
+                <a href="{{ url_for('consumer_bills') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-receipt text-xs mb-0.5"></i> Water Bills
                 </a>
-                <a href="{{ url_for('consumer_complaints') }}" class="p-2 text-slate-300 hover:text-aqua-400 flex flex-col items-center">
-                    <i class="fa-solid fa-circle-exclamation text-sm mb-1"></i> Grievances
+                <a href="{{ url_for('consumer_complaints') }}" class="p-1 text-slate-300 hover:text-sky-400 flex flex-col items-center">
+                    <i class="fa-solid fa-circle-exclamation text-xs mb-0.5"></i> Grievances
                 </a>
             {% endif %}
         </div>
@@ -185,25 +190,25 @@
             {% if messages %}
                 <div class="space-y-2">
                     {% for category, message in messages %}
-                        {% set color_class = "bg-sky-50 border-sky-300 text-sky-800" %}
-                        {% set icon_class = "fa-circle-info text-sky-500" %}
+                        {% set color_class = "bg-sky-50 border-sky-300 text-sky-900" %}
+                        {% set icon_class = "fa-circle-info text-sky-600" %}
                         {% if category == 'success' %}
-                            {% set color_class = "bg-emerald-50 border-emerald-300 text-emerald-800" %}
-                            {% set icon_class = "fa-circle-check text-emerald-500" %}
+                            {% set color_class = "bg-emerald-50 border-emerald-300 text-emerald-900" %}
+                            {% set icon_class = "fa-circle-check text-emerald-600" %}
                         {% elif category == 'danger' %}
-                            {% set color_class = "bg-rose-50 border-rose-300 text-rose-800" %}
-                            {% set icon_class = "fa-circle-xmark text-rose-500" %}
+                            {% set color_class = "bg-rose-50 border-rose-300 text-rose-900" %}
+                            {% set icon_class = "fa-circle-xmark text-rose-600" %}
                         {% elif category == 'warning' %}
-                            {% set color_class = "bg-amber-50 border-amber-300 text-amber-800" %}
-                            {% set icon_class = "fa-triangle-exclamation text-amber-500" %}
+                            {% set color_class = "bg-amber-50 border-amber-300 text-amber-900" %}
+                            {% set icon_class = "fa-triangle-exclamation text-amber-600" %}
                         {% endif %}
-                        <div class="flex items-center justify-between p-3.5 rounded-xl border {{ color_class }} shadow-sm text-sm">
-                            <div class="flex items-center space-x-3">
-                                <i class="fa-solid {{ icon_class }} text-lg"></i>
+                        <div class="flex items-center justify-between p-3 rounded-lg border {{ color_class }} text-xs sm:text-sm">
+                            <div class="flex items-center space-x-2.5">
+                                <i class="fa-solid {{ icon_class }}"></i>
                                 <span class="font-medium">{{ message }}</span>
                             </div>
-                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 transition">
-                                <i class="fa-solid fa-xmark"></i>
+                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 ml-2">
+                                <i class="fa-solid fa-xmark text-sm"></i>
                             </button>
                         </div>
                     {% endfor %}
@@ -213,19 +218,19 @@
     </div>
 
     <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+    <main class="flex-grow max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-4 sm:py-6 w-full max-w-full overflow-hidden">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-auto py-6 no-print text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center gap-2 text-slate-600 font-medium">
-                <i class="fa-solid fa-droplet text-aqua-600"></i>
-                <span>AquaFlow • Water Supply Monitoring and Consumer Billing System</span>
+    <footer class="bg-white border-t border-slate-200 mt-auto py-5 no-print text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-slate-700 font-medium">
+                <i class="fa-solid fa-droplet text-sky-600"></i>
+                <span>AquaFlow • Municipal Water Supply Monitoring & Consumer Billing System</span>
             </div>
-            <div class="text-slate-400">
-                DBMS Academic Project | Relational Schema & Real-Time Dual Dashboard
+            <div class="text-slate-400 text-[11px]">
+                Academic Capstone Demonstration (Local Demo Access Without Credentials)
             </div>
         </div>
     </footer>
